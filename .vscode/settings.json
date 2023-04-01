@@ -1,0 +1,7 @@
+{
+    "java.project.outputPath": "Alg_I_week0\\bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "class_lib\\algs4.jar"
+    ]
+}
