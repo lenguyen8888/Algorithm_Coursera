@@ -5,16 +5,24 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
 
-    private static final boolean DEBUG_ON = false;
+    // stack to save the steps to solve the puzzle
     private LinkedStack<Board> mainSteps;
+    // mainBoard is the initial board, twinBoard is the twin of the initial board
+    // one of them is solvable, this is to detect if the initial board is solvable
     private final Board mainBoard, twinBoard;
+
+    // solvable is true if the initial board is solvable
     private boolean solvable;
+
+    // cache the size of the mainQ and twinQ
     private int mainQSize, twinQSize;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null)
             throw new IllegalArgumentException();
+
+        // initialize mainBoard and twinBoard
         mainBoard = initial;
         twinBoard = mainBoard.twin();
         solvePuzzle();
@@ -81,31 +89,39 @@ public class Solver {
     }
 
     private void solvePuzzle() {
+
+        // 2 priority queues, one for mainBoard, one for twinBoard
         MinPQ<StepNode> mainQ, twinQ;
         mainQ = new MinPQ<StepNode>();
         twinQ = new MinPQ<StepNode>();
 
+        // insert the first step for mainBoard and twinBoard
         StepNode firstMainStep = new StepNode(null, mainBoard, 0);
         mainQ.insert(firstMainStep);
 
+        // similar to the mainBoard, but for the twinBoard
         StepNode firstTwinStep = new StepNode(null, twinBoard, 0);
         twinQ.insert(firstTwinStep);
+        
         boolean solverDone = false;
         StepNode mainSol = null, twinSol = null;
         for (int stepCount = 1; !solverDone; stepCount++) {
-            if (DEBUG_ON)
-                StdOut.println("Step == " + stepCount);
             mainSol = foundGoal(mainQ);
             twinSol = foundGoal(twinQ);
+
+            // if either mainSol or twinSol is not null, then the puzzle is solved
             if (mainSol != null || twinSol != null)
                 solverDone = true;
         }
         mainQSize = mainQ.size();
         twinQSize = twinQ.size();
         solvable = mainSol != null;
+
+        // if the puzzle is solvable, then save the steps to solve the puzzle
         if (solvable) {
             mainSteps = new LinkedStack<Board>();
             StepNode stepTrace = mainSol;
+            // save the steps to solve the puzzle in a stack
             while (stepTrace != null) {
                 mainSteps.push(stepTrace.getBoard());
                 stepTrace = stepTrace.prev();
@@ -113,29 +129,45 @@ public class Solver {
         }
     }
 
+    // find the goal node in the queue, if found, return the goal node
     private StepNode foundGoal(MinPQ<StepNode> queue) {
+
+        // get the node with the minimum priority (best solution)
         StepNode minNode = queue.delMin();
         if (minNode.isGoal()) {
             return minNode;
         }
+
+        // get the previous board and the current board
         Board prevBoard = minNode.getPrevBoard();
         Board board = minNode.getBoard();
+        // check all the neighbors of the current board
         for (Board neighbor : board.neighbors()) {
+            // don't add the previous board to the queue again
             if (!neighbor.equals(prevBoard)) {
                 StepNode newNode = new StepNode(minNode, neighbor, minNode.moves + 1);
                 queue.insert(newNode);
             }
         }
+        // if the goal is not found, return null
         return null;
     }
 
     private class StepNode implements Comparable<StepNode> {
+
+        // the previous step
         private final StepNode prevStep;
+        // the board of the current step
         private final Board board;
+
+        // the number of moves to reach the current step for A* algorithm
         private final int moves;
+        // whether the current board is the goal board
         private final boolean boardGoal;
+        // the manhattan distance of the current board
         private final int manhattan;
 
+        // create a new step node
         public StepNode(StepNode prevStep, Board board, int moves) {
             this.prevStep = prevStep;
             this.board = board;
@@ -144,6 +176,7 @@ public class Solver {
             boardGoal = board.isGoal();
         }
 
+        // get the previous board
         public Board getPrevBoard() {
             if (prevStep == null)
                 return null;
@@ -151,23 +184,27 @@ public class Solver {
                 return prevStep.getBoard();
         }
 
+        // get the previous step
         public StepNode prev() {
             return prevStep;
         }
 
+        // get the current board
         public Board getBoard() {
             return board;
         }
 
+        // board is the goal board?
         public boolean isGoal() {
             return boardGoal;
         }
 
+        // compare the priority of two step nodes
         public int compareTo(StepNode that) {
-
             return manhattanPriority(that);
         }
 
+        //  manhattan priority
         private int manhattanPriority(StepNode that) {
             return (manhattan + moves) - (that.manhattan + that.moves);
         }

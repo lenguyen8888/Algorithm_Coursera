@@ -11,7 +11,6 @@ public class BruteCollinearPoints {
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
         validatePoints(points);
-        checkForDuplicatePoints(points);
 
         segments = new ArrayList<>();
         for (int iVal = 0; iVal < points.length; iVal++) {
@@ -43,26 +42,20 @@ public class BruteCollinearPoints {
         return segments.toArray(new LineSegment[segments.size()]);
     }
 
-    private void checkForDuplicatePoints(Point[] points) {
-        // check if any point is repeated
+    /**
+     * @param points
+     */
+    private void validatePoints(Point[] points) {
+        if (points == null)
+            throw new IllegalArgumentException();
+        for (Point pt : points)
+            if (pt == null)
+                throw new IllegalArgumentException();
+        // check for duplicates in the array
         for (int i = 0; i < points.length; i++) {
             for (int j = i + 1; j < points.length; j++) {
-                if (points[i].compareTo(points[j]) == 0) {
-                    throw new IllegalArgumentException("points[" + i + "] is repeated");
-                }
-            }
-        }
-    }
-
-    private void validatePoints(Point[] points) {
-        // check if points is null
-        if (points == null) {
-            throw new IllegalArgumentException("points is null");
-        }
-        // check if any point is null
-        for (int i = 0; i < points.length; i++) {
-            if (points[i] == null) {
-                throw new IllegalArgumentException("points[" + i + "] is null");
+                if (points[i].compareTo(points[j]) == 0)
+                    throw new IllegalArgumentException();
             }
         }
     }

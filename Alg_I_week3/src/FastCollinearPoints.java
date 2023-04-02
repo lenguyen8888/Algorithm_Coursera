@@ -153,9 +153,11 @@ public class FastCollinearPoints {
             if (pt == null)
                 throw new IllegalArgumentException();
         // check for duplicate points
-        for (int i = 1; i < points.length; i++) {
-            if (points[i].equals(points[i - 1]))
-                throw new IllegalArgumentException();
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++) {
+                if (points[i].compareTo(points[j]) == 0)
+                    throw new IllegalArgumentException();
+            }
         }
     }
 
