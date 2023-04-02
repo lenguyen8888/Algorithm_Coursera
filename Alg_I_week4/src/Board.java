@@ -216,16 +216,16 @@ public class Board {
         int dist = 0;
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                if (getTile(i, j) != 0 && getTile(i, j) != boardGoalVal(i, j))
-                    dist += mahattanDist(i, j);
+                dist += mahattanDist(i, j);
         return dist;
     }
 
     // check if the board is the goal board
     private boolean calcBoardGoal() {
+        // check if the tiles matched the goal board
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                if (getTile(i, j) != 0 && getTile(i, j) != boardGoalVal(i, j))
+                if (getTile(i, j) != boardGoalVal(i, j))
                     return false;
         return true;
     }
@@ -233,46 +233,34 @@ public class Board {
     // calculate the neighbors of the board of 1 possible blank tile move
     private LinkedQueue<Board> calcNeighborList() {
         LinkedQueue<Board> neighborList = new LinkedQueue<Board>();
-        // Right neighbor
-        if (blankCol < (n - 1)) {
-            int[][] rightTiles = copy2DArray(tiles);
-            // swap blank tile to the right
-            int origTileVal = rightTiles[blankRow][blankCol + 1];
-            rightTiles[blankRow][blankCol + 1] = rightTiles[blankRow][blankCol];
-            rightTiles[blankRow][blankCol] = origTileVal;
-            Board newBoard = new Board(rightTiles);
-            neighborList.enqueue(newBoard);
-        }
-        // Top neighbor
+        int[][] neighborTiles;
+        // check if the blank tile can move up
         if (blankRow > 0) {
-            int[][] topTiles = copy2DArray(tiles);
-            // swap blank tile to the right
-            int origTileVal = topTiles[blankRow - 1][blankCol];
-            topTiles[blankRow - 1][blankCol] = topTiles[blankRow][blankCol];
-            topTiles[blankRow][blankCol] = origTileVal;
-            Board newBoard = new Board(topTiles);
-            neighborList.enqueue(newBoard);
+            neighborTiles = copy2DArray(tiles);
+            neighborTiles[blankRow][blankCol] = neighborTiles[blankRow - 1][blankCol];
+            neighborTiles[blankRow - 1][blankCol] = 0;
+            neighborList.enqueue(new Board(neighborTiles));
         }
-
-        // Left neighbor
+        // check if the blank tile can move down
+        if (blankRow < n - 1) {
+            neighborTiles = copy2DArray(tiles);
+            neighborTiles[blankRow][blankCol] = neighborTiles[blankRow + 1][blankCol];
+            neighborTiles[blankRow + 1][blankCol] = 0;
+            neighborList.enqueue(new Board(neighborTiles));
+        }
+        // check if the blank tile can move left
         if (blankCol > 0) {
-            int[][] leftTiles = copy2DArray(tiles);
-            // swap blank tile to the right
-            int origTileVal = leftTiles[blankRow][blankCol - 1];
-            leftTiles[blankRow][blankCol - 1] = leftTiles[blankRow][blankCol];
-            leftTiles[blankRow][blankCol] = origTileVal;
-            Board newBoard = new Board(leftTiles);
-            neighborList.enqueue(newBoard);
+            neighborTiles = copy2DArray(tiles);
+            neighborTiles[blankRow][blankCol] = neighborTiles[blankRow][blankCol - 1];
+            neighborTiles[blankRow][blankCol - 1] = 0;
+            neighborList.enqueue(new Board(neighborTiles));
         }
-        // Bottom neighbor
-        if (blankRow < (n - 1)) {
-            int[][] bottomTiles = copy2DArray(tiles);
-            // swap blank tile to the right
-            int origTileVal = bottomTiles[blankRow + 1][blankCol];
-            bottomTiles[blankRow + 1][blankCol] = bottomTiles[blankRow][blankCol];
-            bottomTiles[blankRow][blankCol] = origTileVal;
-            Board newBoard = new Board(bottomTiles);
-            neighborList.enqueue(newBoard);
+        // check if the blank tile can move right
+        if (blankCol < n - 1) {
+            neighborTiles = copy2DArray(tiles);
+            neighborTiles[blankRow][blankCol] = neighborTiles[blankRow][blankCol + 1];
+            neighborTiles[blankRow][blankCol + 1] = 0;
+            neighborList.enqueue(new Board(neighborTiles));
         }
         return neighborList;
     }
